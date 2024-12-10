@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { createFee, updateFeeStatus } = require('../controller/fees.controller');
+const { createFee, updateFeeStatus,getAllFees } = require('../controller/fees.controller');
 
-// POST: Create fees for multiple students
-// router.post('/create-all', createAllFees);
+router.get('/',getAllFees);
 
 // POST: Create a single fee
 router.post('/', createFee);

@@ -53,39 +53,48 @@ const getAllStudents = async (req, res) => {
   }
 };
 
-// Get a particular student with detailed data
 const getStudentDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
+    // Fetch the student and populate related fields
     const student = await Student.findById(id)
       .populate('department', 'name') // Populate department name
       .populate({
         path: 'department',
         populate: { path: 'head', select: 'name email' }, // Populate department head
-      });
+      })
+      .populate({
+        path: 'results',
+        populate: { 
+          path: 'course', 
+          select: 'name code' // Populate course name and code
+        }
+      })
+      .populate('fees', 'amount paymentDate status') // Populate fees details
+      .populate('assignedTeacher', 'name email'); // Populate assigned teacher details
 
     if (!student) {
       return res.status(404).json({ error: "Student not found" });
     }
 
     // Fetch additional related data
-    const results = await Result.find({ student: id }).populate('course', 'name code');
-    const fees = await Fee.find({ student: id });
     const subjects = await Subject.find({ department: student.department._id });
-    const teacher = await Teacher.findOne({ department: student.department._id });
+    const teachers = await Teacher.find({ department: student.department._id }).select('name email');
 
+    // Respond with all data
     return res.status(200).json({
       student,
-      teacher: teacher ? { name: teacher.name, email: teacher.email } : null,
-      subjects,
-      results,
-      fees,
+      teachers, // All teachers as an array
+      subjects, // All subjects under the department
     });
   } catch (error) {
     console.error("Error fetching student details:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+
+
 
 module.exports = { createStudent, getAllStudents, getStudentDetails };

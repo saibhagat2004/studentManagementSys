@@ -4,18 +4,27 @@ const Fee = require('../models/fees.model');
 // Create a single fee
 const createFee = async (req, res) => {
   try {
-    const { student, amount, dueDate } = req.body;
+    const { student, amount, paymentDate, status } = req.body;
 
-    if (!student || !amount || !dueDate) {
-      return res.status(400).json({ error: "Student, amount, and due date are required" });
+    // Validate required fields
+    if (!student || !amount || !paymentDate) {
+      return res.status(400).json({ error: "Student, amount, and paymentDate are required." });
     }
 
+    // Validate status if provided
+    if (status && !['Paid', 'Pending'].includes(status)) {
+      return res.status(400).json({ error: "Invalid status. Use 'Paid' or 'Pending'." });
+    }
+
+    // Create the Fee document
     const newFee = new Fee({
       student,
       amount,
-      dueDate,
+      paymentDate,
+      status: status || 'Pending', // Default to 'Pending' if not provided
     });
 
+    // Save the Fee to the database
     const savedFee = await newFee.save();
 
     return res.status(201).json({
@@ -27,6 +36,7 @@ const createFee = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 
 // Update fee payment status
 const updateFeeStatus = async (req, res) => {
@@ -58,4 +68,25 @@ const updateFeeStatus = async (req, res) => {
   }
 };
 
-module.exports = {createFee, updateFeeStatus };
+
+// Get all fees
+const getAllFees = async (req, res) => {
+  try {
+    // Fetch all fees and populate the student details
+    const fees = await Fee.find().populate('student', 'name PID');
+
+    if (!fees || fees.length === 0) {
+      return res.status(404).json({ message: "No fees found" });
+    }
+
+    // Send the response
+    return res.status(200).json(fees);
+  } catch (error) {
+    console.error("Error fetching fees:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+
+module.exports = {createFee, updateFeeStatus,getAllFees };

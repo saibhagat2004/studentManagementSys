@@ -19,6 +19,7 @@ const subjectSchema = new mongoose.Schema({
       ref: 'Teacher' 
     }
   });
+
   
   module.exports = mongoose.model('Subject', subjectSchema);
   

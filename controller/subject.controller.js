@@ -8,7 +8,7 @@ const getAllSubjects = async (req, res) => {
     const subjects = await Subject.find()
       .populate('department', 'name') // Populate department name
       .populate('teacher', 'name employeeId'); // Populate teacher name and employee ID
-
+      
     return res.status(200).json(subjects);
   } catch (error) {
     console.error("Error fetching subjects:", error);
