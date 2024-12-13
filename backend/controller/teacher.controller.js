@@ -65,7 +65,8 @@ const updateTeacher = async (req, res) => {
   const getAllTeachers = async (req, res) => {
     try {
       const teachers = await Teacher.find()
-        .populate('department', 'name'); // Populate department name if referenced
+        .populate('department', 'name')// Populate department name if referenced
+        .populate('subjects', 'name'); // Populate 
   
       return res.status(200).json(teachers);
     } catch (error) {
