@@ -63,9 +63,53 @@ const createSubject = async (req, res) => {
   }
 };
 
+// Update a subject by ID
+const updateSubject = async (req, res) => {
+  try {
+    const { id } = req.params; // Get the subject ID from the route parameters
+    const { name, code, teacher, credits } = req.body; // Extract updated fields from the request body
+
+    // Find the subject by ID and update it
+    const updatedSubject = await Subject.findByIdAndUpdate(
+      id,
+      { name, code, teacher, credits },
+      { new: true, runValidators: true } // `new: true` returns the updated document
+    );
+
+    if (!updatedSubject) {
+      return res.status(404).json({ message: 'Subject not found' });
+    }
+
+    res.status(200).json({ message: 'Subject updated successfully', subject: updatedSubject });
+  } catch (error) {
+    console.error('Error updating subject:', error);
+    res.status(500).json({ message: 'Failed to update subject', error: error.message });
+  }
+};
+
+
+// Delete a subject by ID
+const deleteSubject = async (req, res) => {
+  try {
+    const { id } = req.params; // Get the subject ID from the route parameters
+
+    // Find and delete the subject by ID
+    const deletedSubject = await Subject.findByIdAndDelete(id);
+
+    if (!deletedSubject) {
+      return res.status(404).json({ message: 'Subject not found' });
+    }
+
+    res.status(200).json({ message: 'Subject deleted successfully', subject: deletedSubject });
+  } catch (error) {
+    console.error('Error deleting subject:', error);
+    res.status(500).json({ message: 'Failed to delete subject', error: error.message });
+  }
+};
 
 
 
-module.exports = { getAllSubjects,createSubject  };
+
+module.exports = { getAllSubjects,createSubject ,updateSubject ,deleteSubject};
 
 

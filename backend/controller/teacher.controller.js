@@ -30,36 +30,37 @@ const createTeacher = async (req, res) => {
   }
 };
 
-
 const updateTeacher = async (req, res) => {
-    try {
-      const { id } = req.params; // Teacher ID from URL params
-      const { name, employeeId, department } = req.body;
-  
-      // Find and update the teacher
-      const updatedTeacher = await Teacher.findByIdAndUpdate(
-        id,
-        {
-          ...(name && { name }),
-          ...(employeeId && { employeeId }),
-          ...(department && { department }),
-        },
-        { new: true, runValidators: true } // Return updated document and run schema validations
-      );
-  
-      if (!updatedTeacher) {
-        return res.status(404).json({ error: "Teacher not found" });
-      }
-  
-      return res.status(200).json({
-        message: "Teacher updated successfully",
-        teacher: updatedTeacher,
-      });
-    } catch (error) {
-      console.error("Error updating teacher:", error);
-      res.status(500).json({ error: "Internal server error" });
+  try {
+    const { id } = req.params; // Teacher ID from URL params
+    const { name, employeeId, department, subjects } = req.body;
+
+    // Find and update the teacher
+    const updatedTeacher = await Teacher.findByIdAndUpdate(
+      id,
+      {
+        ...(name && { name }),
+        ...(employeeId && { employeeId }),
+        ...(department && { department }),
+        ...(subjects && { subjects }), // Add subjects update
+      },
+      { new: true, runValidators: true } // Return updated document and run schema validations
+    );
+
+    if (!updatedTeacher) {
+      return res.status(404).json({ error: "Teacher not found" });
     }
-  };
+
+    return res.status(200).json({
+      message: "Teacher updated successfully",
+      teacher: updatedTeacher,
+    });
+  } catch (error) {
+    console.error("Error updating teacher:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 
   
   const getAllTeachers = async (req, res) => {
@@ -75,10 +76,35 @@ const updateTeacher = async (req, res) => {
     }
   };
 
-  
+
+
+
+// Delete a teacher by ID
+const deleteTeacher = async (req, res) => {
+  try {
+    const { id } = req.params; // Get the teacher ID from the route parameters
+
+    // Find and delete the teacher by ID
+    const deletedTeacher = await Teacher.findByIdAndDelete(id);
+
+    if (!deletedTeacher) {
+      return res.status(404).json({ message: 'Teacher not found' });
+    }
+
+    res.status(200).json({ message: 'Teacher deleted successfully', teacher: deletedTeacher });
+  } catch (error) {
+    console.error('Error deleting teacher:', error);
+    res.status(500).json({ message: 'Failed to delete teacher', error: error.message });
+  }
+};
+
+
+
+
   module.exports = {
     createTeacher,
     updateTeacher,
     getAllTeachers,
+    deleteTeacher
 };
 
